@@ -5,11 +5,10 @@ import android.os.Bundle
 import com.example.cameramap.databinding.ActivityCameraBinding
 
 class CameraActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityCameraBinding
+    private val binding by lazy { ActivityCameraBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityCameraBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         intent.getStringExtra("owner")?.let { binding.owner.text = it}
