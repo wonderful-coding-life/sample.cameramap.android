@@ -35,7 +35,12 @@ class MainActivity : AppCompatActivity() {
 
             // add markers with blue for traffic and pink for security
             cameraMap.camera.forEach { camera ->
-                val icon = if ("생활방범" == camera.type) BitmapDescriptorFactory.fromResource(R.drawable.poi_pink) else BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
+                //val icon = if ("생활방범" == camera.type) BitmapDescriptorFactory.fromResource(R.drawable.poi_pink) else BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
+                val icon = when (camera.type) {
+                    "생활방범" -> BitmapDescriptorFactory.fromResource(R.drawable.poi_pink)
+                    "교통단속" -> BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
+                    else -> BitmapDescriptorFactory.fromResource(R.drawable.poi_green)
+                }
                 googleMap.addMarker(
                     MarkerOptions()
                         .icon(icon)
