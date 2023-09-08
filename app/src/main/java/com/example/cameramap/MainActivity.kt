@@ -1,10 +1,12 @@
 package com.example.cameramap
 
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
@@ -31,10 +33,12 @@ class MainActivity : AppCompatActivity() {
             val jsonType = object : TypeToken<CameraMap>() {}.type
             val cameraMap = Gson().fromJson(jsonString, jsonType) as CameraMap
 
-            // add markers
+            // add markers with blue for traffic and pink for security
             cameraMap.camera.forEach { camera ->
+                val icon = if ("생활방범" == camera.type) BitmapDescriptorFactory.fromResource(R.drawable.poi_pink) else BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
                 googleMap.addMarker(
                     MarkerOptions()
+                        .icon(icon)
                         .position(LatLng(camera.latitude, camera.longitude))
                         .title(camera.type)
                         .snippet("${camera.latitude}, ${camera.longitude}")
