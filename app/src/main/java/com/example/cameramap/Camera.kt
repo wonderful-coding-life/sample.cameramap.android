@@ -1,6 +1,9 @@
 package com.example.cameramap
 
-data class Camera(
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.clustering.ClusterItem
+
+class Camera(
     val address: String,
     val angle: String,
     val archive: Int,
@@ -15,4 +18,16 @@ data class Camera(
     val resolution: Int,
     val type: String,
     val updated: String
-)
+) : ClusterItem {
+    override fun getPosition(): LatLng {
+        return LatLng(latitude, longitude)
+    }
+
+    override fun getTitle(): String? {
+        return type
+    }
+
+    override fun getSnippet(): String? {
+        return "$latitude, $longitude"
+    }
+}

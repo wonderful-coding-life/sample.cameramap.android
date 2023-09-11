@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.example.cameramap.databinding.ActivityMainBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
@@ -12,12 +13,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.google.maps.android.clustering.ClusterManager
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
@@ -28,35 +30,24 @@ class MainActivity : AppCompatActivity() {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(37.56682420, 126.97865226), 16F))
 
             // set minimum zoom level
-            googleMap.setMinZoomPreference(14F)
+            googleMap.setMinZoomPreference(12F)
 
             // get camara map from json file
             val jsonString = this@MainActivity.assets.open("camera.json").bufferedReader().readText()
             val jsonType = object : TypeToken<CameraMap>() {}.type
             val cameraMap = Gson().fromJson(jsonString, jsonType) as CameraMap
 
-            // add markers with blue for traffic and pink for security
-            cameraMap.camera.forEach { camera ->
-                //val icon = if ("생활방범" == camera.type) BitmapDescriptorFactory.fromResource(R.drawable.poi_pink) else BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
-                val icon = when (camera.type) {
-                    "생활방범" -> BitmapDescriptorFactory.fromResource(R.drawable.poi_pink)
-                    "교통단속" -> BitmapDescriptorFactory.fromResource(R.drawable.poi_blue)
-                    else -> BitmapDescriptorFactory.fromResource(R.drawable.poi_green)
-                }
-                googleMap.addMarker(
-                    MarkerOptions()
-                        .icon(icon)
-                        .position(LatLng(camera.latitude, camera.longitude))
-                        .title(camera.type)
-                        .snippet("${camera.latitude}, ${camera.longitude}")
-                )?.let {
-                    it.tag = camera
-                }
-            }
+            // create cluster and add camera
+            val clusterManager = ClusterManager<Camera>(this@MainActivity, googleMap)
+            googleMap.setOnCameraIdleListener(clusterManager)
+            googleMap.setOnMarkerClickListener(clusterManager)
+            cameraMap.camera.forEach { clusterManager.addItem(it) }
 
-            // show camera details when click marker
-            googleMap.setOnInfoWindowClickListener {
-                val camera = it.tag as Camera
+            // we can toggle animation of clustering/declustering
+            // clusterManager.setAnimation(false);
+
+            // start camera detail activity when user click item's info windows
+            clusterManager.setOnClusterItemInfoWindowClickListener { camera ->
                 val intent = Intent(this@MainActivity, CameraActivity::class.java).apply {
                     putExtra("owner", camera.owner)
                     putExtra("address", camera.address)
