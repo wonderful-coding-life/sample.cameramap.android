@@ -2,6 +2,7 @@ package com.example.cameramap
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,9 +12,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.heatmaps.Gradient
+import com.google.maps.android.heatmaps.HeatmapTileProvider
+import com.google.maps.android.heatmaps.WeightedLatLng
 
 private const val TAG = "MainActivity"
 
@@ -30,7 +35,7 @@ class MainActivity : AppCompatActivity() {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(37.56682420, 126.97865226), 16F))
 
             // set minimum zoom level
-            googleMap.setMinZoomPreference(12F)
+            googleMap.setMinZoomPreference(4F)
 
             // get camara map from json file
             val jsonString = this@MainActivity.assets.open("camera.json").bufferedReader().readText()
@@ -42,9 +47,6 @@ class MainActivity : AppCompatActivity() {
             googleMap.setOnCameraIdleListener(clusterManager)
             googleMap.setOnMarkerClickListener(clusterManager)
             cameraMap.camera.forEach { clusterManager.addItem(it) }
-
-            // we can toggle animation of clustering/declustering
-            // clusterManager.setAnimation(false);
 
             // start camera detail activity when user click item's info windows
             clusterManager.setOnClusterItemInfoWindowClickListener { camera ->
@@ -64,6 +66,17 @@ class MainActivity : AppCompatActivity() {
                 }
                 this@MainActivity.startActivity(intent)
             }
+
+//            val cameraLatLngList  = ArrayList<LatLng>()
+//            cameraMap.camera.forEach { if (it.type == "교통단속") cameraLatLngList.add(it.position) }
+//            val colors = intArrayOf(
+//                Color.rgb(102, 225, 0),  // green
+//                Color.rgb(255, 0, 0) // red
+//            )
+//            val startPoints = floatArrayOf(0.2f, 1f)
+//            val gradient = Gradient(colors, startPoints)
+//            val provider = HeatmapTileProvider.Builder().data(cameraLatLngList).gradient(gradient).build()
+//            googleMap.addTileOverlay(TileOverlayOptions().tileProvider(provider))
         }
     }
 }
