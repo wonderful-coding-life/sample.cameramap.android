@@ -9,6 +9,7 @@ import com.example.cameramap.databinding.ActivityMainBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -38,6 +39,16 @@ class MainActivity : AppCompatActivity() {
             val jsonType = object : TypeToken<CampingMap>() {}.type
             val campingMap = Gson().fromJson(jsonString, jsonType) as CampingMap
 
+            // create markers for camping sites
+            campingMap.camping.forEach { camping ->
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(camping.latitude, camping.longitude))
+                        .title(camping.name)
+                        .snippet("${camping.latitude}, ${camping.longitude}")
+                )
+            }
+
             // create cluster and add camera
 //            val clusterManager = ClusterManager<Camping>(this@MainActivity, googleMap)
 //            googleMap.setOnCameraIdleListener(clusterManager)
@@ -45,11 +56,10 @@ class MainActivity : AppCompatActivity() {
 //            campingMap.camping.forEach { clusterManager.addItem(it) }
 
             // create heat map
-            val campingLatLngList  = ArrayList<LatLng>()
-            campingMap.camping.forEach { campingLatLngList.add(it.position) }
-            Log.i(TAG, "spiderman count = ${campingMap.camping.size}")
-            val provider = HeatmapTileProvider.Builder().data(campingLatLngList).build()
-            googleMap.addTileOverlay(TileOverlayOptions().tileProvider(provider))
+//            val campingLatLngList  = ArrayList<LatLng>()
+//            campingMap.camping.forEach { campingLatLngList.add(it.position) }
+//            val provider = HeatmapTileProvider.Builder().data(campingLatLngList).build()
+//            googleMap.addTileOverlay(TileOverlayOptions().tileProvider(provider))
         }
     }
 }
